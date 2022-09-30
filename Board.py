@@ -8,13 +8,13 @@ from Opponent import Opponent
 
 
 class Board:
-    def __init__(self, window, game_box, opponent):
+    def __init__(self, window, game_box, opponent, who_starts=1):
         self.logic_checker = LogicChecker()
         self.positions = [[0] * 3 for _ in range(3)]
         self.btn_array = [[None] * 3 for _ in range(3)]
         self.game_box = None
         self.window = None
-        self.turn = 1
+        self.turn = who_starts
         self.opponent = opponent
 
         print("Initiated board")
@@ -26,6 +26,8 @@ class Board:
         for current_row_index in range(len(self.positions)):
             for current_column_index in range(len(self.positions[current_row_index])):
                 self.draw_single_tile(current_row_index, current_column_index, None)
+        if self.turn == 2:
+            self.opponent.play(self)
 
     def draw_single_tile(self, row, column, image):
         # Position image on button
@@ -52,7 +54,7 @@ class Board:
             self.opponent_place_o(row, column)
 
     def place_x_in_board_tile(self, row, column):
-        if self.turn is not 1:
+        if self.turn != 1:
             return
         self.turn = 2
         self.window.change_status_title(self.opponent.current_name + "'s turn")
@@ -61,12 +63,14 @@ class Board:
         self.place_image_in_button(row, column, "images/cross.png")
 
         if self.check_winning_status() is True:
+            if self.opponent.isOnline:
+                self.opponent.play(self, str(row) + ";" + str(column), True)
             self.game_box.after(12000, self.window.show_main_menu)
             return
-        self.opponent.play(self)
+        self.opponent.play(self, str(row) + ";" + str(column))
 
     def opponent_place_o(self, row, column):
-        if self.turn is not 2:
+        if self.turn != 2:
             return
         self.window.change_status_title("Player 1's turn")
         self.turn = 1

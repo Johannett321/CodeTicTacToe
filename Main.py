@@ -1,10 +1,13 @@
 import gc
+import random
 import time
+import tkinter
 from threading import Thread
 from tkinter import *
 from PIL import Image, ImageTk
 
 from COOPOpponent import COOPOpponent
+from MultiplayerOpponent import MultiplayerOpponent
 from Opponent import Opponent
 from Server import Server
 from Sounds import AudioPlayer
@@ -21,6 +24,7 @@ class Window(Frame):
     title = None
     music_thread = None
     audio_player = AudioPlayer()
+    port = random.randint(5000, 9000)
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -61,7 +65,7 @@ class Window(Frame):
         self.title.pack(pady=10)
         self.board.draw_board()
 
-    def run_multiplayer_game(self):
+    def run_coop_game(self):
         self.audio_player.stop_music()
         self.audio_player.play_battle_music()
         self.clear_canvas()
@@ -81,17 +85,66 @@ class Window(Frame):
         title.pack(pady=10)
 
         singleplayer_button = Button(app.game_box, text="Singleplayer", command=self.run_singleplayer_game)
-        singleplayer_button.pack()
+        singleplayer_button.pack(pady=5)
 
-        multiplayer_button = Button(app.game_box, text="Co-op", command=self.run_multiplayer_game)
-        multiplayer_button.pack(pady=10)
+        multiplayer_button = Button(app.game_box, text="Co-op", command=self.run_coop_game)
+        multiplayer_button.pack(pady=5)
+
+        multiplayer_button = Button(app.game_box, text="Join server", command=self.show_multiplayer_menu)
+        multiplayer_button.pack(pady=5)
 
         multiplayer_button = Button(app.game_box, text="Host server", command=self.host_server)
-        multiplayer_button.pack(pady=10)
+        multiplayer_button.pack(pady=5)
 
     def host_server(self):
-        server = Server()
+        print("Defining port")
+        server = Server(self.port)
         server.start_server()
+
+    def show_multiplayer_menu(self):
+        self.clear_canvas()
+
+        self.title = Label(self.game_box, text="Join game", font=("Calibra", 26, "bold"))
+        self.title.pack(pady=5)
+
+        ip = tkinter.StringVar()
+        port = tkinter.StringVar()
+
+        Label(self.game_box, text="What's the ip?", font=("Calibra", 15, "bold")).pack(pady=2)
+        ip_input = Entry(app.game_box, textvariable=ip, font=('calibre', 10, 'normal'))
+        ip_input.pack(pady=10)
+
+        Label(self.game_box, text="What's the port?", font=("Calibra", 15, "bold")).pack(pady=2)
+        port_input = Entry(app.game_box, textvariable=port, font=('calibre', 10, 'normal'))
+        port_input.pack(pady=10)
+
+        join_button = Button(app.game_box, text="Join", command=lambda: self.join_multiplayer_game(ip.get(), int(port.get())))
+        join_button.pack(pady=5)
+
+    def join_multiplayer_game(self, ip, port):
+        opponent = MultiplayerOpponent(ip, port)
+
+        opponent.send_command_to_server("MyID")
+        server_ready = opponent.send_command_to_server("YouReady?")
+        print("Server_ready: " + server_ready)
+        while server_ready == "False":
+            time.sleep(1)
+            server_ready = opponent.send_command_to_server("YouReady?")
+
+        opponent.set_name(server_ready.split(";")[0])
+        who_starts = int(server_ready.split(";")[1])
+
+        self.audio_player.stop_music()
+        self.audio_player.play_battle_music()
+        self.clear_canvas()
+
+        self.board = Board(self, self.game_box, opponent, who_starts)
+        if who_starts == 1:
+            self.title = Label(self.game_box, text="Your turn", font=("Calibra", 26, "bold"))
+        else:
+            self.title = Label(self.game_box, text=opponent.current_name + "'s turn", font=("Calibra", 26, "bold"))
+        self.title.pack(pady=10)
+        self.board.draw_board()
 
     def show_intro(self):
         self.game_box.destroy()

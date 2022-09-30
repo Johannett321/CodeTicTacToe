@@ -9,9 +9,10 @@ class Opponent:
 
     def __init__(self):
         self.can_click = False
+        self.isOnline = False
         self.current_name = self.names[random.randint(0, len(self.names)-1)]
 
-    def play(self, board):
+    def play(self, board, just_chose=None, just_won=False):
         def place_o():
             row_col = self.algorithm_decide_position(board)
             board.opponent_place_o(row_col[0], row_col[1])
