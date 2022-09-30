@@ -1,8 +1,6 @@
-import gc
 import random
 import time
 import tkinter
-from threading import Thread
 from tkinter import *
 from PIL import Image, ImageTk
 
@@ -13,8 +11,7 @@ from Server import Server
 from Sounds import AudioPlayer
 from Board import Board
 
-# _boot_time = 4000
-_boot_time = 0
+_boot_time = 4000
 
 
 class Window(Frame):

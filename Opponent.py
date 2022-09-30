@@ -1,7 +1,4 @@
 import random
-import time
-from subprocess import Popen
-from threading import Thread, main_thread
 
 
 class Opponent:

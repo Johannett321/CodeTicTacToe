@@ -1,10 +1,7 @@
-import random
-import time
 from tkinter import *
 from PIL import Image, ImageTk
 
 from LogicChecker import LogicChecker
-from Opponent import Opponent
 
 
 class Board:

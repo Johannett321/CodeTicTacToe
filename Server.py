@@ -1,7 +1,5 @@
-import random
-import time
 import socket
-from threading import Thread, main_thread
+from threading import Thread
 from tkinter import *
 
 
