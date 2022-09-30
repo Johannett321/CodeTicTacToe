@@ -38,12 +38,15 @@ class MultiplayerOpponent(Opponent):
         if just_won:
             return
 
-        while chosen_tiles == "False":
-            time.sleep(1)
-            chosen_tiles = self.send_command_to_server("PleaseChoose")
-        row = int(chosen_tiles.split(";")[0])
-        col = int(chosen_tiles.split(";")[1])
-        board.opponent_place_o(row, col)
+        def ui_loaded(tiles_chosen):
+            while tiles_chosen == "False":
+                time.sleep(1)
+                tiles_chosen = self.send_command_to_server("PleaseChoose")
+            row = int(tiles_chosen.split(";")[0])
+            col = int(tiles_chosen.split(";")[1])
+            board.opponent_place_o(row, col)
+
+        board.game_box.after(300, lambda: ui_loaded(chosen_tiles))
 
     def set_name(self, name):
         self.current_name = name

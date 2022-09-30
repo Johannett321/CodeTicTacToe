@@ -121,6 +121,15 @@ class Server:
                     self.player_decision2 = command.split(";")[1] + ";" + command.split(";")[2]
                 data = "False"
                 conn.send(data.encode())  # send data to the client
+            elif command.split(";")[0] == "MyUsername":
+                if self.connected_players[0] == sender:
+                    print("Chosen by player 1: ")
+                    self.player_name1 = command.split(";")[1]
+                else:
+                    print("Chosen by player 2")
+                    self.player_name2 = command.split(";")[1]
+                data = "ThankU"
+                conn.send(data.encode())  # send data to the client
             else:
                 print("----- WARNING COMMAND NOT FOUND!!!! -----:" + command)
             conn.close()  # close the connection

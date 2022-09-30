@@ -109,6 +109,7 @@ class Window(Frame):
 
         ip = tkinter.StringVar()
         port = tkinter.StringVar()
+        username = tkinter.StringVar()
 
         Label(self.game_box, text="What's the ip?", font=("Calibra", 15, "bold")).pack(pady=2)
         ip_input = Entry(app.game_box, textvariable=ip, font=('calibre', 10, 'normal'))
@@ -118,33 +119,45 @@ class Window(Frame):
         port_input = Entry(app.game_box, textvariable=port, font=('calibre', 10, 'normal'))
         port_input.pack(pady=10)
 
-        join_button = Button(app.game_box, text="Join", command=lambda: self.join_multiplayer_game(ip.get(), int(port.get())))
+        Label(self.game_box, text="Your name?", font=("Calibra", 15, "bold")).pack(pady=2)
+        username_input = Entry(app.game_box, textvariable=username, font=('calibre', 10, 'normal'))
+        username_input.pack(pady=10)
+
+        join_button = Button(app.game_box, text="Join", command=lambda: self.join_multiplayer_game(ip.get(), int(port.get()), username.get()))
         join_button.pack(pady=5)
 
-    def join_multiplayer_game(self, ip, port):
-        opponent = MultiplayerOpponent(ip, port)
+    def join_multiplayer_game(self, ip, port, username):
+        def ui_done():
+            opponent = MultiplayerOpponent(ip, port)
 
-        opponent.send_command_to_server("MyID")
-        server_ready = opponent.send_command_to_server("YouReady?")
-        print("Server_ready: " + server_ready)
-        while server_ready == "False":
-            time.sleep(1)
+            opponent.send_command_to_server("MyID")
+            opponent.send_command_to_server("MyUsername;" + username)
             server_ready = opponent.send_command_to_server("YouReady?")
+            print("Server_ready: " + server_ready)
+            while server_ready == "False":
+                time.sleep(1)
+                server_ready = opponent.send_command_to_server("YouReady?")
 
-        opponent.set_name(server_ready.split(";")[0])
-        who_starts = int(server_ready.split(";")[1])
+            opponent.set_name(server_ready.split(";")[0])
+            who_starts = int(server_ready.split(";")[1])
 
-        self.audio_player.stop_music()
-        self.audio_player.play_battle_music()
+            self.audio_player.stop_music()
+            self.audio_player.play_battle_music()
+            self.clear_canvas()
+
+            self.board = Board(self, self.game_box, opponent, who_starts)
+            if who_starts == 1:
+                self.title = Label(self.game_box, text="Your turn", font=("Calibra", 26, "bold"))
+            else:
+                self.title = Label(self.game_box, text=opponent.current_name + "'s turn", font=("Calibra", 26, "bold"))
+            self.title.pack(pady=10)
+            self.board.draw_board()
+
         self.clear_canvas()
+        self.title = Label(self.game_box, text="Waiting for more players...", font=("Calibra", 20, "bold"))
+        self.title.pack(pady=140)
 
-        self.board = Board(self, self.game_box, opponent, who_starts)
-        if who_starts == 1:
-            self.title = Label(self.game_box, text="Your turn", font=("Calibra", 26, "bold"))
-        else:
-            self.title = Label(self.game_box, text=opponent.current_name + "'s turn", font=("Calibra", 26, "bold"))
-        self.title.pack(pady=10)
-        self.board.draw_board()
+        self.game_box.after(2000, ui_done)
 
     def show_intro(self):
         self.game_box.destroy()

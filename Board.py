@@ -54,6 +54,9 @@ class Board:
             self.opponent_place_o(row, column)
 
     def place_x_in_board_tile(self, row, column):
+        def ui_done():
+            self.opponent.play(self, str(row) + ";" + str(column))
+
         if self.turn != 1:
             return
         self.turn = 2
@@ -67,12 +70,13 @@ class Board:
                 self.opponent.play(self, str(row) + ";" + str(column), True)
             self.game_box.after(12000, self.window.show_main_menu)
             return
-        self.opponent.play(self, str(row) + ";" + str(column))
+
+        self.window.after(1000, ui_done)
 
     def opponent_place_o(self, row, column):
         if self.turn != 2:
             return
-        self.window.change_status_title("Player 1's turn")
+        self.window.change_status_title("Your turn")
         self.turn = 1
         self.positions[row][column] = 2
 
