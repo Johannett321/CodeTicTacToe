@@ -4,8 +4,9 @@ from threading import Thread
 from tkinter import *
 from PIL import Image, ImageTk
 
-from MultiplayerOpponent import MultiplayerOpponent
+from COOPOpponent import COOPOpponent
 from Opponent import Opponent
+from Server import Server
 from Sounds import AudioPlayer
 from Board import Board
 
@@ -65,7 +66,7 @@ class Window(Frame):
         self.audio_player.play_battle_music()
         self.clear_canvas()
 
-        self.board = Board(self, self.game_box, MultiplayerOpponent())
+        self.board = Board(self, self.game_box, COOPOpponent())
         self.title = Label(self.game_box, text="Your turn", font=("Calibra", 26, "bold"))
         self.title.pack(pady=10)
         self.board.draw_board()
@@ -84,6 +85,13 @@ class Window(Frame):
 
         multiplayer_button = Button(app.game_box, text="Co-op", command=self.run_multiplayer_game)
         multiplayer_button.pack(pady=10)
+
+        multiplayer_button = Button(app.game_box, text="Host server", command=self.host_server)
+        multiplayer_button.pack(pady=10)
+
+    def host_server(self):
+        server = Server()
+        server.start_server()
 
     def show_intro(self):
         self.game_box.destroy()
