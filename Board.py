@@ -56,6 +56,10 @@ class Board:
 
         if self.turn != 1:
             return
+
+        if self.positions[row][column] != 0:
+            return
+
         self.turn = 2
         self.window.change_status_title(self.opponent.current_name + "'s turn")
 
@@ -73,6 +77,10 @@ class Board:
     def opponent_place_o(self, row, column):
         if self.turn != 2:
             return
+
+        if self.positions[row][column] != 0:
+            return
+
         self.window.change_status_title("Your turn")
         self.turn = 1
         self.positions[row][column] = 2
