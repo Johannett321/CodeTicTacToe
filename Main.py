@@ -11,7 +11,7 @@ from Server import Server
 from Sounds import AudioPlayer
 from Board import Board
 
-_boot_time = 4000
+_boot_time = 2000
 
 
 class Window(Frame):
